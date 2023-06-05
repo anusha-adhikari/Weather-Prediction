@@ -35,6 +35,7 @@ plt.show()
 
 #making a dictionary of the weather conditions
 weather_con = {'drizzle': 0, 'fog': 1, 'rain': 2, 'snow': 3, 'sun': 4}
+weather_dec = {0: 'drizzle', 1: 'fog', 2:'rain', 3: 'snow', 4: 'sun'}
 
 #dropping the date column
 dataset = data.drop('date', axis = 1)
@@ -53,7 +54,7 @@ Y = dataset['weather']
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.2, random_state = 0)
 
 #Cleansing the data
-sc = StandardScaler()
+sc = StandardScaler() #used for normalization
 X_train = sc.fit_transform(X_train)
 X_test = sc.transform(X_test)
 '''
@@ -88,5 +89,14 @@ nba = GaussianNB()
 nba.fit(X_train, Y_train)
 print('Test accuracy of Naive Bayes Algorithm: {}'.format(nba.score(X_test, Y_test)*100))
 
-print("Predicted Weather: ", list(weather_con.keys())
-	[list(weather_con.values()).index(nba.predict([[2.6,12.3,14.3,2.6]]))])
+y_pred = nba.predict(X_test)
+
+decodeFunc1 = np.vectorize(lambda val : weather_dec[val])
+decodeFunc2 = np.vectorize(lambda val : weather_dec[val])
+
+decodedWeather1 = decodeFunc1(Y_test)
+decodedWeather2 = decodeFunc2(y_pred)
+
+df = np.concatenate((decodedWeather1, decodedWeather2)).reshape(-1,2)
+dataframe = pd.DataFrame(df, columns=['Real Weather', 'Predicted Weather'])
+print(dataframe)
